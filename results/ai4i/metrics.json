@@ -1,0 +1,150 @@
+{
+  "experiment": "D \u2014 AI4I Fault Classification",
+  "dataset": "AI4I 2020 Predictive Maintenance",
+  "dataset_type": "SYNTHETIC \u2014 not real sensor measurements",
+  "n_train": 7000,
+  "n_val": 1000,
+  "n_test": 2000,
+  "n_features": 8,
+  "feature_names": [
+    "air_temp_k",
+    "process_temp_k",
+    "rotational_speed_rpm",
+    "torque_nm",
+    "tool_wear_min",
+    "temp_delta_k",
+    "power_proxy",
+    "product_type_ord"
+  ],
+  "failure_rate_train": 0.039714285714285716,
+  "failure_rate_test": 0.0195,
+  "binary_classification": {
+    "model": "Random Forest (n_estimators=150)",
+    "f1": 0.7213114754098361,
+    "roc_auc": 0.9307064684423175,
+    "pr_auc": 0.7326885707812469,
+    "confusion_matrix": [
+      [
+        1961,
+        0
+      ],
+      [
+        17,
+        22
+      ]
+    ]
+  },
+  "multi_class_classification": {
+    "model": "Random Forest (n_estimators=150)",
+    "classes": [
+      "bearing_wear",
+      "cooling_failure",
+      "electrical_fault",
+      "healthy",
+      "imbalance",
+      "random_failure"
+    ],
+    "report": {
+      "bearing_wear": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 10.0
+      },
+      "electrical_fault": {
+        "precision": 0.7,
+        "recall": 1.0,
+        "f1-score": 0.8235294117647058,
+        "support": 7.0
+      },
+      "healthy": {
+        "precision": 0.9919151086407276,
+        "recall": 1.0,
+        "f1-score": 0.9959411466260781,
+        "support": 1963.0
+      },
+      "imbalance": {
+        "precision": 1.0,
+        "recall": 0.55,
+        "f1-score": 0.7096774193548387,
+        "support": 20.0
+      },
+      "accuracy": 0.9905,
+      "macro avg": {
+        "precision": 0.6729787771601818,
+        "recall": 0.6375,
+        "f1-score": 0.6322869944364057,
+        "support": 2000.0
+      },
+      "weighted avg": {
+        "precision": 0.9860146791308743,
+        "recall": 0.9905,
+        "f1-score": 0.9874953625482206,
+        "support": 2000.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        0,
+        10,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        7,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1963,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        3,
+        6,
+        11,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "fault_label_mapping_note": "Labels are PROXY mappings from AI4I synthetic fault types to DT categories. TWF\u2192bearing_wear (Medium), HDF\u2192cooling_failure (Medium), PWF/OSF/RNF have low-confidence mappings. Do NOT use these as ground truth for physical fault classes.",
+  "top_features": {
+    "rotational_speed_rpm": 0.21699479473929187,
+    "power_proxy": 0.2079312357877793,
+    "torque_nm": 0.17501490118063437,
+    "temp_delta_k": 0.15415711885724984,
+    "tool_wear_min": 0.12579027589262934,
+    "air_temp_k": 0.0524251660007132,
+    "process_temp_k": 0.05134259360833847,
+    "product_type_ord": 0.016343913933363628
+  },
+  "training_time_s": 3.08,
+  "note": "All metrics computed from actual AI4I data. AI4I is synthetic \u2014 results reflect benchmark performance, not real sensor measurement accuracy."
+}

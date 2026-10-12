@@ -1,0 +1,54 @@
+{
+  "experiment": "A \u2014 SKAB Anomaly Detection",
+  "dataset": "SKAB (real industrial pump data)",
+  "dataset_type": "real_industrial",
+  "n_train_normal": 8078,
+  "n_test": 1770,
+  "n_test_anomaly": 567,
+  "n_test_normal": 1203,
+  "anomaly_rate_test": 0.32033898305084746,
+  "train_files": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12"
+  ],
+  "test_files": [
+    "13",
+    "14"
+  ],
+  "n_features": 76,
+  "model": "Isolation Forest (n_estimators=200)",
+  "scaler": "StandardScaler",
+  "calibration": {
+    "s_good": 0.0558227680473804,
+    "s_bad": 0.047615534934585646,
+    "method": "median of IF scores on real normal/anomaly test windows"
+  },
+  "threshold": 0.0558227680473804,
+  "precision": 0.38485158648925283,
+  "recall": 0.6631393298059964,
+  "f1": 0.48704663212435234,
+  "roc_auc": 0.5688849598519867,
+  "pr_auc": 0.3451947403282395,
+  "false_positive_rate": 0.4995843724023275,
+  "false_negative_rate": 0.3368606701940035,
+  "confusion_matrix": {
+    "TP": 376,
+    "FP": 601,
+    "TN": 602,
+    "FN": 191
+  },
+  "training_time_s": 5.69,
+  "health_index_normal_mean": 55.73450615720892,
+  "health_index_anomaly_mean": 41.69178548837632,
+  "note": "All metrics computed from actual SKAB data. Calibration anchors derived from real sensor measurements."
+}

@@ -1,0 +1,735 @@
+{
+  "annotations": { "list": [] },
+  "description": "Industrial Equipment Digital Twin — Real-time Health Monitoring, ML Fault Detection, RUL Estimation",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "⚙️ Row 1 — Overall Condition",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Health Index",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 5, "x": 0, "y": 1 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "none",
+          "displayName": "Health",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#F2495C", "value": null },
+              { "color": "#FF9830", "value": 40 },
+              { "color": "#73BF69", "value": 70 }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "text": { "titleSize": 14, "valueSize": 40 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"health_index\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Alert Status",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 5, "y": 1 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Alert",
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "✅ OK",       "color": "#73BF69", "index": 0 } } },
+            { "type": "value", "options": { "1": { "text": "⚠️ WARNING",  "color": "#FF9830", "index": 1 } } },
+            { "type": "value", "options": { "2": { "text": "🚨 CRITICAL", "color": "#F2495C", "index": 2 } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#73BF69", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "text": { "valueSize": 26 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"alert_level\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Fault Classification",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 5, "x": 9, "y": 1 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Fault Class",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#5794F2", "value": null }] },
+          "mappings": [
+            { "type": "value", "options": { "healthy":         { "text": "🟢 HEALTHY",        "color": "#73BF69", "index": 0 } } },
+            { "type": "value", "options": { "bearing_wear":   { "text": "🔴 BEARING WEAR",   "color": "#F2495C", "index": 1 } } },
+            { "type": "value", "options": { "imbalance":      { "text": "🟠 IMBALANCE",       "color": "#FF9830", "index": 2 } } },
+            { "type": "value", "options": { "cavitation":     { "text": "🔵 CAVITATION",      "color": "#5794F2", "index": 3 } } },
+            { "type": "value", "options": { "cooling_failure":{ "text": "🟣 COOLING FAIL",    "color": "#B877D9", "index": 4 } } }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "text": { "valueSize": 18 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"fault_class\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "ML Confidence",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 14, "y": 1 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Confidence",
+          "unit": "percentunit",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#F2495C", "value": null },
+              { "color": "#FF9830", "value": 0.6 },
+              { "color": "#73BF69", "value": 0.85 }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "sparkline",
+        "textMode": "value_and_name",
+        "text": { "valueSize": 28 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"confidence\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Remaining Useful Life (RUL)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "RUL",
+          "unit": "s",
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "type": "value", "options": { "-1": { "text": "🟢 STABLE", "color": "#73BF69", "index": 0 } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#F2495C", "value": null },
+              { "color": "#FF9830", "value": 120 },
+              { "color": "#73BF69", "value": 300 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "text": { "valueSize": 28 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"rul_s\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Alert Status",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 5, "y": 5 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Anomaly Score",
+          "unit": "none",
+          "color": { "mode": "thresholds" },
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#F2495C", "value": null },
+              { "color": "#FF9830", "value": -0.1 },
+              { "color": "#73BF69", "value": 0 }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "sparkline",
+        "textMode": "value_and_name",
+        "text": { "valueSize": 22 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"anomaly_score\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "True Fault (Ground Truth)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 5, "x": 9, "y": 5 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Ground Truth",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#5794F2", "value": null }] },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "text": { "valueSize": 16 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"truth\" and r._field == \"fault_true\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "True Health Index",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 14, "y": 5 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "True Health",
+          "unit": "none",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#F2495C", "value": null },
+              { "color": "#FF9830", "value": 40 },
+              { "color": "#73BF69", "value": 70 }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "sparkline",
+        "textMode": "value_and_name",
+        "text": { "valueSize": 26 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"truth\" and r._field == \"health_true\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Process Load",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 5 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Load",
+          "unit": "percentunit",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#73BF69", "value": null },
+              { "color": "#FF9830", "value": 0.85 },
+              { "color": "#F2495C", "value": 0.95 }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "sparkline",
+        "textMode": "value_and_name",
+        "text": { "valueSize": 28 }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: -2m) |> filter(fn:(r) => r._measurement == \"truth\" and r._field == \"load\") |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 101,
+      "title": "📈 Row 2 — Health Intelligence",
+      "type": "row"
+    },
+    {
+      "id": 5,
+      "title": "Health Index Trend (ML vs Ground Truth)",
+      "type": "timeseries",
+      "gridPos": { "h": 9, "w": 14, "x": 0, "y": 10 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "none",
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "thresholdsStyle": { "mode": "line" },
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#F2495C", "value": null },
+              { "color": "#FF9830", "value": 40 },
+              { "color": "#73BF69", "value": 70 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "health_index" },
+            "properties": [
+              { "id": "displayName", "value": "ML Health Index" },
+              { "id": "color", "value": { "fixedColor": "#5794F2", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "health_true" },
+            "properties": [
+              { "id": "displayName", "value": "Ground Truth Health" },
+              { "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } },
+              { "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"health_index\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"truth\" and r._field == \"health_true\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Fault State Timeline",
+      "type": "state-timeline",
+      "gridPos": { "h": 4, "w": 10, "x": 14, "y": 10 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "lineWidth": 0, "fillOpacity": 70 },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "mappings": [
+            { "type": "value", "options": { "healthy":         { "color": "#73BF69", "index": 0 } } },
+            { "type": "value", "options": { "bearing_wear":   { "color": "#F2495C", "index": 1 } } },
+            { "type": "value", "options": { "imbalance":      { "color": "#FF9830", "index": 2 } } },
+            { "type": "value", "options": { "cavitation":     { "color": "#5794F2", "index": 3 } } },
+            { "type": "value", "options": { "cooling_failure":{ "color": "#B877D9", "index": 4 } } }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "mergeValues": true,
+        "showValue": "auto",
+        "alignValue": "center",
+        "rowHeight": 0.9,
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"fault_class\") |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Alert Level Timeline",
+      "type": "state-timeline",
+      "gridPos": { "h": 5, "w": 10, "x": 14, "y": 14 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "lineWidth": 0, "fillOpacity": 70 },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#73BF69", "value": null },
+              { "color": "#FF9830", "value": 1 },
+              { "color": "#F2495C", "value": 2 }
+            ]
+          },
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "OK",       "color": "#73BF69", "index": 0 } } },
+            { "type": "value", "options": { "1": { "text": "WARNING",  "color": "#FF9830", "index": 1 } } },
+            { "type": "value", "options": { "2": { "text": "CRITICAL", "color": "#F2495C", "index": 2 } } }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "mergeValues": true,
+        "showValue": "always",
+        "alignValue": "center",
+        "rowHeight": 0.9,
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"health\" and r._field == \"alert_level\") |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 19 },
+      "id": 102,
+      "title": "🌡️ Row 3 — Condition Indicators (Fault Signatures)",
+      "type": "row"
+    },
+    {
+      "id": 7,
+      "title": "Vibration (mm/s) — Bearing Wear & Imbalance Signature",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "velocityms",
+          "color": { "mode": "fixed", "fixedColor": "#FF9830" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "thresholdsStyle": { "mode": "line+area" }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "transparent", "value": null },
+              { "color": "rgba(255, 152, 48, 0.2)", "value": 4 },
+              { "color": "rgba(242, 73, 92, 0.25)", "value": 7 }
+            ]
+          },
+          "displayName": "Vibration"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"telemetry\" and r._field == \"vibration_mms\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Bearing Temperature (°C) — Cooling Failure & Friction Signature",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "color": { "mode": "fixed", "fixedColor": "#F2495C" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "thresholdsStyle": { "mode": "line+area" }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "transparent", "value": null },
+              { "color": "rgba(255, 152, 48, 0.2)", "value": 70 },
+              { "color": "rgba(242, 73, 92, 0.25)", "value": 90 }
+            ]
+          },
+          "displayName": "Temperature"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"telemetry\" and r._field == \"temp_c\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 28 },
+      "id": 103,
+      "title": "⚡ Row 4 — Process Variables",
+      "type": "row"
+    },
+    {
+      "id": 18,
+      "title": "RPM (Motor Speed)",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 29 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "rotrpm",
+          "color": { "mode": "fixed", "fixedColor": "#5794F2" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "displayName": "RPM"
+        },
+        "overrides": []
+      },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "hidden" } },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"telemetry\" and r._field == \"rpm\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "title": "Motor Current (A)",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 29 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "amp",
+          "color": { "mode": "fixed", "fixedColor": "#B877D9" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "displayName": "Current"
+        },
+        "overrides": []
+      },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "hidden" } },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"telemetry\" and r._field == \"current_a\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "title": "Flow Rate (m³/h) — Cavitation Signature",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 29 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "flowm3h",
+          "color": { "mode": "fixed", "fixedColor": "#73BF69" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "displayName": "Flow"
+        },
+        "overrides": []
+      },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "hidden" } },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"telemetry\" and r._field == \"flow_m3h\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "title": "Discharge Pressure (bar) — Cavitation Signature",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 29 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "pressurebar",
+          "color": { "mode": "fixed", "fixedColor": "#FADE2A" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "displayName": "Pressure"
+        },
+        "overrides": []
+      },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "hidden" } },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"telemetry\" and r._field == \"pressure_bar\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
+      "id": 104,
+      "title": "🔧 Row 5 — All Sensors Combined",
+      "type": "row"
+    },
+    {
+      "id": 9,
+      "title": "All Process Signals — Multi-Sensor Overview",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 37 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 1, "fillOpacity": 5 }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "rpm" },          "properties": [ { "id": "displayName", "value": "RPM (x0.01)" } ] },
+          { "matcher": { "id": "byName", "options": "current_a" },    "properties": [ { "id": "displayName", "value": "Current (A)" } ] },
+          { "matcher": { "id": "byName", "options": "flow_m3h" },     "properties": [ { "id": "displayName", "value": "Flow (m³/h)" } ] },
+          { "matcher": { "id": "byName", "options": "pressure_bar" }, "properties": [ { "id": "displayName", "value": "Pressure (bar)" } ] },
+          { "matcher": { "id": "byName", "options": "vibration_mms" },"properties": [ { "id": "displayName", "value": "Vibration (mm/s)" } ] },
+          { "matcher": { "id": "byName", "options": "temp_c" },       "properties": [ { "id": "displayName", "value": "Temp (°C)" } ] }
+        ]
+      },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max", "last"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "influxdb-twin" },
+          "query": "from(bucket:\"twin\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r) => r._measurement == \"telemetry\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false) |> pivot(rowKey:[\"_time\"], columnKey:[\"_field\"], valueColumn:\"_value\")",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "1s",
+  "schemaVersion": 39,
+  "tags": ["digital-twin", "pump", "health-monitoring", "predictive-maintenance", "iot", "ml"],
+  "templating": { "list": [] },
+  "time": { "from": "now-10m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Pump01 Digital Twin — Health Monitor",
+  "uid": "pump01-twin-v1",
+  "version": 2
+}

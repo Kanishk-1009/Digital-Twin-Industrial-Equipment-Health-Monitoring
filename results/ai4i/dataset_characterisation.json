@@ -1,0 +1,303 @@
+{
+  "global": {
+    "air_temp_k": {
+      "mean": 300.00493,
+      "std": 2.0002586829157516,
+      "min": 295.3,
+      "max": 304.5,
+      "median": 300.1,
+      "iqr": 3.1999999999999886,
+      "skewness": 0.11427392052155025,
+      "kurtosis": -0.8359616725774686,
+      "q01": 295.9,
+      "q99": 304.1
+    },
+    "process_temp_k": {
+      "mean": 310.00555999999995,
+      "std": 1.4837342191657208,
+      "min": 305.7,
+      "max": 313.8,
+      "median": 310.1,
+      "iqr": 2.3000000000000114,
+      "skewness": 0.015027267769343768,
+      "kurtosis": -0.49973436501613966,
+      "q01": 306.6,
+      "q99": 313.2
+    },
+    "rotational_speed_rpm": {
+      "mean": 1538.7761,
+      "std": 179.2840959134266,
+      "min": 1168.0,
+      "max": 2886.0,
+      "median": 1503.0,
+      "iqr": 189.0,
+      "skewness": 1.993171004713752,
+      "kurtosis": 7.392944899246482,
+      "q01": 1275.0,
+      "q99": 2188.01
+    },
+    "torque_nm": {
+      "mean": 39.986909999999995,
+      "std": 9.968933725121337,
+      "min": 3.8,
+      "max": 76.6,
+      "median": 40.1,
+      "iqr": 13.599999999999994,
+      "skewness": -0.009516595840058577,
+      "kurtosis": -0.013240614017022256,
+      "q01": 16.7,
+      "q99": 62.8
+    },
+    "tool_wear_min": {
+      "mean": 107.951,
+      "std": 63.65414663663636,
+      "min": 0.0,
+      "max": 253.0,
+      "median": 108.0,
+      "iqr": 109.0,
+      "skewness": 0.027292239050452523,
+      "kurtosis": -1.166737131578055,
+      "q01": 0.0,
+      "q99": 222.0
+    },
+    "temp_delta_k": {
+      "mean": 10.000630000000001,
+      "std": 1.0010938127779023,
+      "min": 7.599999999999966,
+      "max": 12.100000000000023,
+      "median": 9.800000000000011,
+      "iqr": 1.7000000000000455,
+      "skewness": -0.07248395099894908,
+      "kurtosis": -0.9858490296500539,
+      "q01": 7.800000000000011,
+      "q99": 11.800000000000011
+    },
+    "power_proxy": {
+      "mean": 59967.14704000001,
+      "std": 10193.093880884042,
+      "min": 10966.8,
+      "max": 99980.40000000001,
+      "median": 59883.899999999994,
+      "iqr": 13768.349999999999,
+      "skewness": 0.008257336550347598,
+      "kurtosis": 0.15816999156747524,
+      "q01": 36641.248999999996,
+      "q99": 84237.13
+    }
+  },
+  "correlation_matrix": {
+    "air_temp_k": {
+      "air_temp_k": 1.0,
+      "process_temp_k": 0.8761071581166637,
+      "rotational_speed_rpm": 0.022670458795535774,
+      "torque_nm": -0.013777823050932982,
+      "tool_wear_min": 0.013852827663160141,
+      "temp_delta_k": -0.6995832996095934,
+      "power_proxy": -0.011473944192323797
+    },
+    "process_temp_k": {
+      "air_temp_k": 0.8761071581166637,
+      "process_temp_k": 1.0,
+      "rotational_speed_rpm": 0.019276713901797683,
+      "torque_nm": -0.01406061311689268,
+      "tool_wear_min": 0.013487517120005912,
+      "temp_delta_k": -0.2684131373022985,
+      "power_proxy": -0.010951783069597121
+    },
+    "rotational_speed_rpm": {
+      "air_temp_k": 0.022670458795535774,
+      "process_temp_k": 0.019276713901797683,
+      "rotational_speed_rpm": 1.0,
+      "torque_nm": -0.8750270862996037,
+      "tool_wear_min": 0.00022308484018726584,
+      "temp_delta_k": -0.016726965833333003,
+      "power_proxy": -0.8055837074013565
+    },
+    "torque_nm": {
+      "air_temp_k": -0.013777823050932982,
+      "process_temp_k": -0.01406061311689268,
+      "rotational_speed_rpm": -0.8750270862996037,
+      "torque_nm": 1.0,
+      "tool_wear_min": -0.003092781440768214,
+      "temp_delta_k": 0.006689680107745286,
+      "power_proxy": 0.9788282708982268
+    },
+    "tool_wear_min": {
+      "air_temp_k": 0.013852827663160141,
+      "process_temp_k": 0.013487517120005912,
+      "rotational_speed_rpm": 0.00022308484018726584,
+      "torque_nm": -0.003092781440768214,
+      "tool_wear_min": 1.0,
+      "temp_delta_k": -0.007688937875154033,
+      "power_proxy": -0.0031933205768295454
+    },
+    "temp_delta_k": {
+      "air_temp_k": -0.6995832996095934,
+      "process_temp_k": -0.2684131373022985,
+      "rotational_speed_rpm": -0.016726965833333003,
+      "torque_nm": 0.006689680107745286,
+      "tool_wear_min": -0.007688937875154033,
+      "temp_delta_k": 1.0,
+      "power_proxy": 0.0066939992148737654
+    },
+    "power_proxy": {
+      "air_temp_k": -0.011473944192323797,
+      "process_temp_k": -0.010951783069597121,
+      "rotational_speed_rpm": -0.8055837074013565,
+      "torque_nm": 0.9788282708982268,
+      "tool_wear_min": -0.0031933205768295454,
+      "temp_delta_k": 0.0066939992148737654,
+      "power_proxy": 1.0
+    }
+  },
+  "rolling": {
+    "air_temp_k": {
+      "rolling_mean_mean": 300.00493,
+      "rolling_mean_std": 2.0002586829157516,
+      "rolling_std_mean": NaN,
+      "rolling_std_max": NaN
+    },
+    "process_temp_k": {
+      "rolling_mean_mean": 310.00555999999995,
+      "rolling_mean_std": 1.4837342191657208,
+      "rolling_std_mean": NaN,
+      "rolling_std_max": NaN
+    },
+    "rotational_speed_rpm": {
+      "rolling_mean_mean": 1538.7761,
+      "rolling_mean_std": 179.2840959134266,
+      "rolling_std_mean": NaN,
+      "rolling_std_max": NaN
+    },
+    "torque_nm": {
+      "rolling_mean_mean": 39.986909999999995,
+      "rolling_mean_std": 9.968933725121337,
+      "rolling_std_mean": NaN,
+      "rolling_std_max": NaN
+    },
+    "tool_wear_min": {
+      "rolling_mean_mean": 107.951,
+      "rolling_mean_std": 63.65414663663636,
+      "rolling_std_mean": NaN,
+      "rolling_std_max": NaN
+    },
+    "temp_delta_k": {
+      "rolling_mean_mean": 10.000630000000001,
+      "rolling_mean_std": 1.0010938127779023,
+      "rolling_std_mean": NaN,
+      "rolling_std_max": NaN
+    },
+    "power_proxy": {
+      "rolling_mean_mean": 59967.14704000001,
+      "rolling_mean_std": 10193.093880884042,
+      "rolling_std_mean": NaN,
+      "rolling_std_max": NaN
+    }
+  },
+  "fault_signatures": {
+    "0": {
+      "air_temp_k": {
+        "mean": 299.9739985508746,
+        "std": 1.9907479694438195,
+        "median": 300.0
+      },
+      "process_temp_k": {
+        "mean": 309.99556981678916,
+        "std": 1.4868460647646986,
+        "median": 310.0
+      },
+      "rotational_speed_rpm": {
+        "mean": 1540.2600144912535,
+        "std": 167.39473403228348,
+        "median": 1507.0
+      },
+      "torque_nm": {
+        "mean": 39.62965531518476,
+        "std": 9.472080111077105,
+        "median": 39.9
+      },
+      "tool_wear_min": {
+        "mean": 106.69371700652107,
+        "std": 62.94579046389409,
+        "median": 107.0
+      },
+      "temp_delta_k": {
+        "mean": 10.0215712659145,
+        "std": 0.9884218211367646,
+        "median": 9.800000000000011
+      },
+      "power_proxy": {
+        "mean": 59631.03644550254,
+        "std": 9658.105021023312,
+        "median": 59616.7
+      }
+    },
+    "1": {
+      "air_temp_k": {
+        "mean": 300.88643067846607,
+        "std": 2.071472606797602,
+        "median": 301.6
+      },
+      "process_temp_k": {
+        "mean": 310.2902654867257,
+        "std": 1.3636856993841047,
+        "median": 310.4
+      },
+      "rotational_speed_rpm": {
+        "mean": 1496.486725663717,
+        "std": 384.94354727230365,
+        "median": 1365.0
+      },
+      "torque_nm": {
+        "mean": 50.16814159292036,
+        "std": 16.374498133978197,
+        "median": 53.7
+      },
+      "tool_wear_min": {
+        "mean": 143.78171091445427,
+        "std": 72.75987593568681,
+        "median": 165.0
+      },
+      "temp_delta_k": {
+        "mean": 9.403834808259585,
+        "std": 1.164444930556871,
+        "median": 9.299999999999955
+      },
+      "power_proxy": {
+        "mean": 69545.80324483776,
+        "std": 17677.06556473389,
+        "median": 72683.8
+      }
+    }
+  },
+  "healthy_distribution": {
+    "air_temp_k": {
+      "mu": 299.9739985508746,
+      "sigma": 1.9906449366580226
+    },
+    "process_temp_k": {
+      "mu": 309.99556981678916,
+      "sigma": 1.4867691118332098
+    },
+    "rotational_speed_rpm": {
+      "mu": 1540.2600144912535,
+      "sigma": 167.3860703812137
+    },
+    "torque_nm": {
+      "mu": 39.62965531518476,
+      "sigma": 9.471589875840845
+    },
+    "tool_wear_min": {
+      "mu": 106.69371700652107,
+      "sigma": 62.942532653138926
+    },
+    "temp_delta_k": {
+      "mu": 10.0215712659145,
+      "sigma": 0.9883706645587661
+    },
+    "power_proxy": {
+      "mu": 59631.03644550254,
+      "sigma": 9657.605157916021
+    }
+  }
+}

@@ -1,0 +1,14 @@
+apiVersion: 1
+datasources:
+  - name: InfluxDB
+    uid: influxdb-twin
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    isDefault: true
+    jsonData:
+      version: Flux
+      organization: hcl
+      defaultBucket: twin
+    secureJsonData:
+      token: twin-super-token

@@ -1,0 +1,10 @@
+{
+  "synthetic_s_good": 0.016433732440326226,
+  "synthetic_s_bad": -0.09275387960927894,
+  "skab_s_good": 0.0558227680473804,
+  "skab_s_bad": 0.047615534934585646,
+  "blend_alpha_real": 0.3,
+  "final_s_good": 0.028250443122442476,
+  "final_s_bad": -0.05064305524611957,
+  "method": "Blended calibration: (1-alpha)*synthetic + alpha*skab. alpha=0.30 because SKAB covers only a subset of Digital Twin signals (missing: rpm, flow_m3h). SKAB signals mapped: Current\u2192current_a, Pressure\u2192pressure_bar, Accelerometer1RMS\u2192vibration_rms, Temperature\u2192temp_c, RateRMS\u2192flow_proxy."
+}

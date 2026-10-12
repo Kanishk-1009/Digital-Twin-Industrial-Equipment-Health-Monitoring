@@ -1,0 +1,100 @@
+{
+  "rpm / rotational_speed": {
+    "digital_twin": "yes",
+    "skab": "no",
+    "ai4i": "yes",
+    "nasa_ims": "no",
+    "paderborn": "proxy"
+  },
+  "current_a": {
+    "digital_twin": "yes",
+    "skab": "yes",
+    "ai4i": "no",
+    "nasa_ims": "no",
+    "paderborn": "no"
+  },
+  "voltage_v": {
+    "digital_twin": "no",
+    "skab": "yes",
+    "ai4i": "no",
+    "nasa_ims": "no",
+    "paderborn": "no"
+  },
+  "pressure_bar": {
+    "digital_twin": "yes",
+    "skab": "proxy",
+    "ai4i": "no",
+    "nasa_ims": "no",
+    "paderborn": "no"
+  },
+  "flow_m3h": {
+    "digital_twin": "yes",
+    "skab": "proxy",
+    "ai4i": "no",
+    "nasa_ims": "no",
+    "paderborn": "no"
+  },
+  "vibration_rms": {
+    "digital_twin": "yes",
+    "skab": "yes",
+    "ai4i": "no",
+    "nasa_ims": "yes",
+    "paderborn": "yes"
+  },
+  "temperature_c": {
+    "digital_twin": "yes",
+    "skab": "yes",
+    "ai4i": "proxy",
+    "nasa_ims": "no",
+    "paderborn": "no"
+  },
+  "torque_nm": {
+    "digital_twin": "no",
+    "skab": "no",
+    "ai4i": "yes",
+    "nasa_ims": "no",
+    "paderborn": "no"
+  },
+  "tool_wear_min": {
+    "digital_twin": "no",
+    "skab": "no",
+    "ai4i": "yes",
+    "nasa_ims": "no",
+    "paderborn": "no"
+  },
+  "anomaly_label": {
+    "digital_twin": "yes",
+    "skab": "yes",
+    "ai4i": "yes",
+    "nasa_ims": "no",
+    "paderborn": "yes"
+  },
+  "fault_class": {
+    "digital_twin": "yes",
+    "skab": "no",
+    "ai4i": "proxy",
+    "nasa_ims": "no",
+    "paderborn": "yes"
+  },
+  "rul_ground_truth": {
+    "digital_twin": "yes",
+    "skab": "no",
+    "ai4i": "no",
+    "nasa_ims": "proxy",
+    "paderborn": "no"
+  },
+  "vibration_kurtosis": {
+    "digital_twin": "derived",
+    "skab": "derived",
+    "ai4i": "no",
+    "nasa_ims": "derived",
+    "paderborn": "derived"
+  },
+  "power_proxy": {
+    "digital_twin": "derived",
+    "skab": "derived",
+    "ai4i": "derived",
+    "nasa_ims": "no",
+    "paderborn": "no"
+  }
+}
