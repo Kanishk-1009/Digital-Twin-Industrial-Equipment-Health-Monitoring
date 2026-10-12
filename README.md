@@ -2,7 +2,7 @@
 
 > Real-time predictive maintenance system for motor-pump assets using physics-based simulation, MQTT telemetry, and ML-driven anomaly detection.
 
-Built as part of HCLTech's Industrial IoT initiative (Project P-222), this project implements a digital twin of an industrial pump that generates realistic sensor telemetry, detects anomalies using Isolation Forest, classifies fault types with Random Forest, and visualizes everything through both Grafana dashboards and an interactive Streamlit web app.
+Built as part of HCLTech's Industrial IoT initiative, this project implements a digital twin of an industrial pump that generates realistic sensor telemetry, detects anomalies using Isolation Forest, classifies fault types with Random Forest, and visualizes everything through both Grafana dashboards and an interactive Streamlit web app.
 
 ---
 
@@ -144,7 +144,7 @@ python -m src.control inject cavitation 1.5
 |-----------|-----------------------|--------------------|
 | Grafana   | http://localhost:3000  | admin / admin      |
 | InfluxDB  | http://localhost:8086  | admin / adminpassword |
-| Mosquitto | localhost:1883        | anonymous          |
+| Mosquitto | http://localhost:1883  | anonymous          |
 
 ---
 
