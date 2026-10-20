@@ -2,11 +2,8 @@
 
 > An ML-powered industrial digital twin for equipment health monitoring, anomaly detection, fault classification, and predictive maintenance.
 
-<<<<<<< HEAD
-Built as part of HCLTech's Industrial IoT initiative, this project implements a digital twin of an industrial pump that generates realistic sensor telemetry, detects anomalies using Isolation Forest, classifies fault types with Random Forest, and visualizes everything through both Grafana dashboards and an interactive Streamlit web app.
-=======
 **🚀 Live Demo:** [Launch the Streamlit Dashboard](https://digital-twin-industrial-equipment-health-monitoring-bthmf3oxh6.streamlit.app/)
->>>>>>> 66d12f7 (Upadated website design)
+
 
 ## Overview
 
