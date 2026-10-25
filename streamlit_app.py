@@ -753,6 +753,7 @@ with st.sidebar:
         "Steps per Refresh", 1, 50, 5,
         help="Simulation steps computed between each UI update"
     )
+    st.session_state.steps_per_refresh = steps_per_refresh
 
     col_start, col_stop = st.columns(2)
     with col_start:
@@ -828,294 +829,300 @@ with st.sidebar:
         st.markdown(f'<div style="padding:0 0.35rem;">{log_html}</div>', unsafe_allow_html=True)
 
 
-# ── Main dashboard ────────────────────────────────────────────────────────────
 
-# Run simulation steps
-latest = None
-if st.session_state.running:
-    for _ in range(steps_per_refresh):
-        result = run_simulation_step()
-        if result is not None:
-            latest = result
+# ── Main dashboard ───────────────────────────────────────────────────────────
 
-# Recover latest from state when paused
-if latest is None and st.session_state.health_history:
-    latest = {
-        "health":      st.session_state.health_history[-1],
-        "health_true": st.session_state.health_true_history[-1] if st.session_state.health_true_history else 100.0,
-        "fault_pred":  st.session_state.fault_history[-1] if st.session_state.fault_history else "healthy",
-        "confidence":  0.0,
-        "rul":         st.session_state.rul_history[-1] if st.session_state.rul_history else -1.0,
-        "alert":       st.session_state.alert_history[-1] if st.session_state.alert_history else "OK",
-        "sensors":     {},
-    }
+@st.fragment(run_every=0.1)
+def dashboard_fragment():
+    """Self-refreshing fragment — runs every 100 ms when simulation is active."""
+    # ── Main dashboard ────────────────────────────────────────────────────────────
 
-# ── Status bar ────────────────────────────────────────────────────────────────
-dot_class   = "live-dot running" if st.session_state.running else "live-dot inactive"
-run_label   = "Live" if st.session_state.running else "Idle"
-fault_label = FAULT_LABELS.get(st.session_state.active_fault, st.session_state.active_fault)
+    steps_per_refresh = st.session_state.get("steps_per_refresh", 5)
 
-st.markdown(f"""
-<div class="status-bar">
-    <div class="status-bar-item"><div class="{dot_class}"></div><strong>{run_label}</strong></div>
-    <div class="status-bar-sep"></div>
-    <div class="status-bar-item">Asset <strong>Pump01</strong></div>
-    <div class="status-bar-sep"></div>
-    <div class="status-bar-item">Step <strong>{st.session_state.step_count}</strong></div>
-    <div class="status-bar-sep"></div>
-    <div class="status-bar-item">Buffer <strong>{len(st.session_state.buf)}/{WINDOW}</strong></div>
-    <div class="status-bar-sep"></div>
-    <div class="status-bar-item">Speed <strong>{st.session_state.speed}x</strong></div>
-    <div class="status-bar-sep"></div>
-    <div class="status-bar-item">Fault <strong>{fault_label}</strong></div>
-</div>
-""", unsafe_allow_html=True)
+    # Run simulation steps
+    latest = None
+    if st.session_state.running:
+        for _ in range(steps_per_refresh):
+            result = run_simulation_step()
+            if result is not None:
+                latest = result
 
-# ── Content ───────────────────────────────────────────────────────────────────
-if latest is None:
-    st.markdown("""
-    <div class="idle-state">
-        <div class="idle-state-icon">&#9651;</div>
-        <div class="idle-state-title">Simulation not started</div>
-        <div class="idle-state-sub">Press Start in the sidebar to begin the physics simulation and ML inference pipeline.</div>
+    # Recover latest from state when paused
+    if latest is None and st.session_state.health_history:
+        latest = {
+            "health":      st.session_state.health_history[-1],
+            "health_true": st.session_state.health_true_history[-1] if st.session_state.health_true_history else 100.0,
+            "fault_pred":  st.session_state.fault_history[-1] if st.session_state.fault_history else "healthy",
+            "confidence":  0.0,
+            "rul":         st.session_state.rul_history[-1] if st.session_state.rul_history else -1.0,
+            "alert":       st.session_state.alert_history[-1] if st.session_state.alert_history else "OK",
+            "sensors":     {},
+        }
+
+    # ── Status bar ────────────────────────────────────────────────────────────────
+    dot_class   = "live-dot running" if st.session_state.running else "live-dot inactive"
+    run_label   = "Live" if st.session_state.running else "Idle"
+    fault_label = FAULT_LABELS.get(st.session_state.active_fault, st.session_state.active_fault)
+
+    st.markdown(f"""
+    <div class="status-bar">
+        <div class="status-bar-item"><div class="{dot_class}"></div><strong>{run_label}</strong></div>
+        <div class="status-bar-sep"></div>
+        <div class="status-bar-item">Asset <strong>Pump01</strong></div>
+        <div class="status-bar-sep"></div>
+        <div class="status-bar-item">Step <strong>{st.session_state.step_count}</strong></div>
+        <div class="status-bar-sep"></div>
+        <div class="status-bar-item">Buffer <strong>{len(st.session_state.buf)}/{WINDOW}</strong></div>
+        <div class="status-bar-sep"></div>
+        <div class="status-bar-item">Speed <strong>{st.session_state.speed}x</strong></div>
+        <div class="status-bar-sep"></div>
+        <div class="status-bar-item">Fault <strong>{fault_label}</strong></div>
     </div>
     """, unsafe_allow_html=True)
-else:
-    h       = latest["health"]
-    ht      = latest["health_true"]
-    alert   = latest["alert"]
-    h_class = health_css_class(h)
-    al_class = alert_css_class(alert)
-    rul     = latest["rul"]
-    rul_display = f'{rul:.0f}s' if rul >= 0 else "Stable"
-    rul_class   = "ok" if rul < 0 else ("warn" if rul > 60 else "crit")
-    conf       = latest.get("confidence", 0.0)
-    conf_class = "ok" if conf >= 0.8 else ("warn" if conf >= 0.5 else "crit")
-    fault_display = format_fault(latest["fault_pred"])
-    err = abs(h - ht)
-    err_class = "ok" if err < 10 else ("warn" if err < 25 else "crit")
-    ht_class  = health_css_class(ht)
-    sensors   = latest.get("sensors", {})
 
-    # Alert banner
-    if alert != "OK":
-        msgs = {
-            "WARNING":  f"Health degrading — index at {h:.1f}. Monitor trend and prepare intervention.",
-            "CRITICAL": f"Critical condition — health index {h:.1f}. Immediate action required.",
-        }
-        st.markdown(f'<div class="alert-banner {al_class}">{msgs.get(alert,"")}</div>', unsafe_allow_html=True)
+    # ── Content ───────────────────────────────────────────────────────────────────
+    if latest is None:
+        st.markdown("""
+        <div class="idle-state">
+            <div class="idle-state-icon">&#9651;</div>
+            <div class="idle-state-title">Simulation not started</div>
+            <div class="idle-state-sub">Press Start in the sidebar to begin the physics simulation and ML inference pipeline.</div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        h       = latest["health"]
+        ht      = latest["health_true"]
+        alert   = latest["alert"]
+        h_class = health_css_class(h)
+        al_class = alert_css_class(alert)
+        rul     = latest["rul"]
+        rul_display = f'{rul:.0f}s' if rul >= 0 else "Stable"
+        rul_class   = "ok" if rul < 0 else ("warn" if rul > 60 else "crit")
+        conf       = latest.get("confidence", 0.0)
+        conf_class = "ok" if conf >= 0.8 else ("warn" if conf >= 0.5 else "crit")
+        fault_display = format_fault(latest["fault_pred"])
+        err = abs(h - ht)
+        err_class = "ok" if err < 10 else ("warn" if err < 25 else "crit")
+        ht_class  = health_css_class(ht)
+        sensors   = latest.get("sensors", {})
 
-    # ── Tabs ──────────────────────────────────────────────────────────────────
-    tab_overview, tab_trend, tab_sensors, tab_process = st.tabs([
-        "Overview", "Health Trend", "Condition Indicators", "Process Variables"
-    ])
+        # Alert banner
+        if alert != "OK":
+            msgs = {
+                "WARNING":  f"Health degrading — index at {h:.1f}. Monitor trend and prepare intervention.",
+                "CRITICAL": f"Critical condition — health index {h:.1f}. Immediate action required.",
+            }
+            st.markdown(f'<div class="alert-banner {al_class}">{msgs.get(alert,"")}</div>', unsafe_allow_html=True)
 
-    # ──────────────────────────────────────────────────────────────────────────
-    with tab_overview:
-        # Health panel + KPI row
-        col_health, col_kpis = st.columns([1, 2])
+        # ── Tabs ──────────────────────────────────────────────────────────────────
+        tab_overview, tab_trend, tab_sensors, tab_process = st.tabs([
+            "Overview", "Health Trend", "Condition Indicators", "Process Variables"
+        ])
 
-        with col_health:
-            bar_w = max(0, min(100, h))
-            st.markdown(f"""
-            <div class="health-panel {h_class}">
-                <div class="health-panel-label">Health Index</div>
-                <div class="health-readout {h_class}">{h:.1f}</div>
-                <div class="health-sub">ML estimate &middot; EMA-smoothed &middot; /100</div>
-                <div class="health-bar-track">
-                    <div class="health-bar-fill {h_class}" style="width:{bar_w}%;"></div>
+        # ──────────────────────────────────────────────────────────────────────────
+        with tab_overview:
+            # Health panel + KPI row
+            col_health, col_kpis = st.columns([1, 2])
+
+            with col_health:
+                bar_w = max(0, min(100, h))
+                st.markdown(f"""
+                <div class="health-panel {h_class}">
+                    <div class="health-panel-label">Health Index</div>
+                    <div class="health-readout {h_class}">{h:.1f}</div>
+                    <div class="health-sub">ML estimate &middot; EMA-smoothed &middot; /100</div>
+                    <div class="health-bar-track">
+                        <div class="health-bar-fill {h_class}" style="width:{bar_w}%;"></div>
+                    </div>
+                    <div class="health-bar-markers">
+                        <div class="health-bar-marker" style="left:40%;"></div>
+                        <div class="health-bar-marker" style="left:70%;"></div>
+                        <div class="health-bar-marker-label" style="left:40%;">40</div>
+                        <div class="health-bar-marker-label" style="left:70%;">70</div>
+                    </div>
                 </div>
-                <div class="health-bar-markers">
-                    <div class="health-bar-marker" style="left:40%;"></div>
-                    <div class="health-bar-marker" style="left:70%;"></div>
-                    <div class="health-bar-marker-label" style="left:40%;">40</div>
-                    <div class="health-bar-marker-label" style="left:70%;">70</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
-        with col_kpis:
-            k1, k2, k3, k4 = st.columns(4)
-            with k1:
+            with col_kpis:
+                k1, k2, k3, k4 = st.columns(4)
+                with k1:
+                    st.markdown(f"""
+                    <div class="kpi-tile {al_class}">
+                        <div class="kpi-tile-label">Alert Status</div>
+                        <div class="kpi-tile-value {al_class}">{alert}</div>
+                        <div class="kpi-tile-meta">Threshold 70 / 40</div>
+                    </div>""", unsafe_allow_html=True)
+                with k2:
+                    st.markdown(f"""
+                    <div class="kpi-tile">
+                        <div class="kpi-tile-label">Detected Fault</div>
+                        <div class="kpi-tile-value fault-name">{fault_display}</div>
+                        <div class="kpi-tile-meta">Random Forest</div>
+                    </div>""", unsafe_allow_html=True)
+                with k3:
+                    st.markdown(f"""
+                    <div class="kpi-tile {conf_class}">
+                        <div class="kpi-tile-label">Confidence</div>
+                        <div class="kpi-tile-value {conf_class}">{conf:.0%}</div>
+                        <div class="kpi-tile-meta">Classifier output</div>
+                    </div>""", unsafe_allow_html=True)
+                with k4:
+                    st.markdown(f"""
+                    <div class="kpi-tile {rul_class}">
+                        <div class="kpi-tile-label">RUL Estimate</div>
+                        <div class="kpi-tile-value {rul_class}">{rul_display}</div>
+                        <div class="kpi-tile-meta">Linear trend</div>
+                    </div>""", unsafe_allow_html=True)
+
+            # Ground truth comparison
+            gc1, gc2, gc3 = st.columns(3)
+            with gc1:
                 st.markdown(f"""
-                <div class="kpi-tile {al_class}">
-                    <div class="kpi-tile-label">Alert Status</div>
-                    <div class="kpi-tile-value {al_class}">{alert}</div>
-                    <div class="kpi-tile-meta">Threshold 70 / 40</div>
+                <div class="kpi-tile {ht_class}" style="margin-top:0.55rem;">
+                    <div class="kpi-tile-label">Ground Truth Health</div>
+                    <div class="kpi-tile-value {ht_class}">{ht:.1f}</div>
+                    <div class="kpi-tile-meta">Physics model</div>
                 </div>""", unsafe_allow_html=True)
-            with k2:
+            with gc2:
                 st.markdown(f"""
-                <div class="kpi-tile">
-                    <div class="kpi-tile-label">Detected Fault</div>
-                    <div class="kpi-tile-value fault-name">{fault_display}</div>
-                    <div class="kpi-tile-meta">Random Forest</div>
+                <div class="kpi-tile {err_class}" style="margin-top:0.55rem;">
+                    <div class="kpi-tile-label">Estimation Error</div>
+                    <div class="kpi-tile-value {err_class}">{err:.1f}</div>
+                    <div class="kpi-tile-meta">|ML &minus; truth|</div>
                 </div>""", unsafe_allow_html=True)
-            with k3:
+            with gc3:
                 st.markdown(f"""
-                <div class="kpi-tile {conf_class}">
-                    <div class="kpi-tile-label">Confidence</div>
-                    <div class="kpi-tile-value {conf_class}">{conf:.0%}</div>
-                    <div class="kpi-tile-meta">Classifier output</div>
-                </div>""", unsafe_allow_html=True)
-            with k4:
-                st.markdown(f"""
-                <div class="kpi-tile {rul_class}">
-                    <div class="kpi-tile-label">RUL Estimate</div>
-                    <div class="kpi-tile-value {rul_class}">{rul_display}</div>
-                    <div class="kpi-tile-meta">Linear trend</div>
+                <div class="kpi-tile" style="margin-top:0.55rem;">
+                    <div class="kpi-tile-label">Simulation Step</div>
+                    <div class="kpi-tile-value accent">{st.session_state.step_count}</div>
+                    <div class="kpi-tile-meta">@ {st.session_state.speed}x speed</div>
                 </div>""", unsafe_allow_html=True)
 
-        # Ground truth comparison
-        gc1, gc2, gc3 = st.columns(3)
-        with gc1:
-            st.markdown(f"""
-            <div class="kpi-tile {ht_class}" style="margin-top:0.55rem;">
-                <div class="kpi-tile-label">Ground Truth Health</div>
-                <div class="kpi-tile-value {ht_class}">{ht:.1f}</div>
-                <div class="kpi-tile-meta">Physics model</div>
-            </div>""", unsafe_allow_html=True)
-        with gc2:
-            st.markdown(f"""
-            <div class="kpi-tile {err_class}" style="margin-top:0.55rem;">
-                <div class="kpi-tile-label">Estimation Error</div>
-                <div class="kpi-tile-value {err_class}">{err:.1f}</div>
-                <div class="kpi-tile-meta">|ML &minus; truth|</div>
-            </div>""", unsafe_allow_html=True)
-        with gc3:
-            st.markdown(f"""
-            <div class="kpi-tile" style="margin-top:0.55rem;">
-                <div class="kpi-tile-label">Simulation Step</div>
-                <div class="kpi-tile-value accent">{st.session_state.step_count}</div>
-                <div class="kpi-tile-meta">@ {st.session_state.speed}x speed</div>
-            </div>""", unsafe_allow_html=True)
-
-        # Live sensor readout with threshold-aware coloring
-        if sensors:
-            st.markdown('<div class="section-label">Live Sensor Readout</div>', unsafe_allow_html=True)
-            sensor_meta = [
-                ("rpm",           "Speed",       "rpm"),
-                ("current_a",     "Current",     "A"),
-                ("flow_m3h",      "Flow",        "m3/h"),
-                ("pressure_bar",  "Pressure",    "bar"),
-                ("vibration_mms", "Vibration",   "mm/s"),
-                ("temp_c",        "Temperature", "C"),
-            ]
-            cells_html = ""
-            for key, label, unit in sensor_meta:
-                val = sensors.get(key, 0.0)
-                cls = sensor_reading_class(key, val)
-                cells_html += (
-                    f'<div class="sensor-cell {cls}">'
-                    f'<div class="sensor-cell-label">{label}</div>'
-                    f'<div class="sensor-cell-value">{val:.1f}'
-                    f'<span class="sensor-cell-unit">{unit}</span></div>'
-                    f'</div>'
-                )
-            st.markdown(f'<div class="sensor-row">{cells_html}</div>', unsafe_allow_html=True)
-            # Legend
-            st.markdown(
-                '<div style="font-size:0.62rem;color:var(--text-muted);margin-top:-0.3rem;">'
-                'Cell border: <span style="color:var(--status-warn);">&#9646;</span> Warning threshold &nbsp;'
-                '<span style="color:var(--status-crit);">&#9646;</span> Critical threshold</div>',
-                unsafe_allow_html=True
-            )
-
-    # ──────────────────────────────────────────────────────────────────────────
-    with tab_trend:
-        if st.session_state.health_history:
-            col_trend, col_fault_chart = st.columns([3, 2])
-
-            with col_trend:
-                n_pts = len(st.session_state.health_history)
-                ts_start = len(st.session_state.ts_history) - n_pts
-                ts_for_h = (st.session_state.ts_history[ts_start:]
-                            if ts_start >= 0 else list(range(n_pts)))
-                health_df = pd.DataFrame({
-                    "Step":         ts_for_h[:n_pts],
-                    "ML Health":    st.session_state.health_history[:n_pts],
-                    "Ground Truth": (st.session_state.health_true_history[-n_pts:]
-                                     if st.session_state.health_true_history else [100] * n_pts),
-                })
-                st.markdown('<div class="chart-label">Health Index over Time</div>', unsafe_allow_html=True)
-                st.line_chart(
-                    health_df.set_index("Step"),
-                    color=["#388bfd", "#3fb950"],
-                    use_container_width=True,
-                    height=300,
+            # Live sensor readout with threshold-aware coloring
+            if sensors:
+                st.markdown('<div class="section-label">Live Sensor Readout</div>', unsafe_allow_html=True)
+                sensor_meta = [
+                    ("rpm",           "Speed",       "rpm"),
+                    ("current_a",     "Current",     "A"),
+                    ("flow_m3h",      "Flow",        "m3/h"),
+                    ("pressure_bar",  "Pressure",    "bar"),
+                    ("vibration_mms", "Vibration",   "mm/s"),
+                    ("temp_c",        "Temperature", "C"),
+                ]
+                cells_html = ""
+                for key, label, unit in sensor_meta:
+                    val = sensors.get(key, 0.0)
+                    cls = sensor_reading_class(key, val)
+                    cells_html += (
+                        f'<div class="sensor-cell {cls}">'
+                        f'<div class="sensor-cell-label">{label}</div>'
+                        f'<div class="sensor-cell-value">{val:.1f}'
+                        f'<span class="sensor-cell-unit">{unit}</span></div>'
+                        f'</div>'
+                    )
+                st.markdown(f'<div class="sensor-row">{cells_html}</div>', unsafe_allow_html=True)
+                # Legend
+                st.markdown(
+                    '<div style="font-size:0.62rem;color:var(--text-muted);margin-top:-0.3rem;">'
+                    'Cell border: <span style="color:var(--status-warn);">&#9646;</span> Warning threshold &nbsp;'
+                    '<span style="color:var(--status-crit);">&#9646;</span> Critical threshold</div>',
+                    unsafe_allow_html=True
                 )
 
-            with col_fault_chart:
-                if st.session_state.fault_history:
-                    fault_counts = pd.Series(st.session_state.fault_history[-100:]).value_counts()
-                    st.markdown('<div class="chart-label">Fault Distribution — last 100 steps</div>', unsafe_allow_html=True)
-                    st.bar_chart(fault_counts, color="#388bfd", height=280)
-        else:
-            st.info("Run the simulation to see health trend data.")
+        # ──────────────────────────────────────────────────────────────────────────
+        with tab_trend:
+            if st.session_state.health_history:
+                col_trend, col_fault_chart = st.columns([3, 2])
 
-    # ──────────────────────────────────────────────────────────────────────────
-    with tab_sensors:
-        if st.session_state.sensor_history["vibration_mms"]:
-            col_vib, col_temp = st.columns(2)
-
-            with col_vib:
-                n_vib = len(st.session_state.sensor_history["vibration_mms"])
-                vib_df = pd.DataFrame({
-                    "Step": st.session_state.ts_history[-n_vib:],
-                    "Vibration (mm/s)": st.session_state.sensor_history["vibration_mms"][-n_vib:],
-                })
-                st.markdown('<div class="chart-label">Vibration — warn &gt;3 mm/s &nbsp; crit &gt;6 mm/s</div>', unsafe_allow_html=True)
-                st.line_chart(vib_df.set_index("Step"), color=["#d29922"], height=250, use_container_width=True)
-
-            with col_temp:
-                n_temp = len(st.session_state.sensor_history["temp_c"])
-                temp_df = pd.DataFrame({
-                    "Step": st.session_state.ts_history[-n_temp:],
-                    "Temperature (C)": st.session_state.sensor_history["temp_c"][-n_temp:],
-                })
-                st.markdown('<div class="chart-label">Bearing Temperature — warn &gt;80 C &nbsp; crit &gt;95 C</div>', unsafe_allow_html=True)
-                st.line_chart(temp_df.set_index("Step"), color=["#f85149"], height=250, use_container_width=True)
-
-            # All-sensors normalised — collapsed by default
-            if len(st.session_state.sensor_history["rpm"]) > 10:
-                with st.expander("All sensors normalised (0–1 overlay)", expanded=False):
-                    combined = {}
-                    min_len = min(len(st.session_state.sensor_history[s]) for s in SIGNALS)
-                    for s in SIGNALS:
-                        vals = np.array(st.session_state.sensor_history[s][-min_len:])
-                        v_min, v_max = vals.min(), vals.max()
-                        span = v_max - v_min if v_max > v_min else 1.0
-                        combined[s] = ((vals - v_min) / span).tolist()
-                    combined["Step"] = st.session_state.ts_history[-min_len:]
-                    combined_df = pd.DataFrame(combined).set_index("Step")
-                    st.line_chart(combined_df, height=230, use_container_width=True)
-        else:
-            st.info("Run the simulation to see sensor data.")
-
-    # ──────────────────────────────────────────────────────────────────────────
-    with tab_process:
-        if st.session_state.sensor_history["rpm"]:
-            col_rpm, col_cur, col_flow, col_press = st.columns(4)
-            process_signals = [
-                ("rpm",          "Speed (rpm)",   "#388bfd", col_rpm),
-                ("current_a",    "Current (A)",   "#8b5cf6", col_cur),
-                ("flow_m3h",     "Flow (m3/h)",   "#06b6d4", col_flow),
-                ("pressure_bar", "Pressure (bar)","#3fb950", col_press),
-            ]
-            for sig, label, color, col in process_signals:
-                with col:
-                    n_sig = len(st.session_state.sensor_history[sig])
-                    sig_df = pd.DataFrame({
-                        "Step": st.session_state.ts_history[-n_sig:],
-                        label: st.session_state.sensor_history[sig][-n_sig:],
+                with col_trend:
+                    n_pts = len(st.session_state.health_history)
+                    ts_start = len(st.session_state.ts_history) - n_pts
+                    ts_for_h = (st.session_state.ts_history[ts_start:]
+                                if ts_start >= 0 else list(range(n_pts)))
+                    health_df = pd.DataFrame({
+                        "Step":         ts_for_h[:n_pts],
+                        "ML Health":    st.session_state.health_history[:n_pts],
+                        "Ground Truth": (st.session_state.health_true_history[-n_pts:]
+                                         if st.session_state.health_true_history else [100] * n_pts),
                     })
-                    st.markdown(f'<div class="chart-label">{label}</div>', unsafe_allow_html=True)
-                    st.line_chart(sig_df.set_index("Step"), color=[color], height=220, use_container_width=True)
-        else:
-            st.info("Run the simulation to see process variable data.")
+                    st.markdown('<div class="chart-label">Health Index over Time</div>', unsafe_allow_html=True)
+                    st.line_chart(
+                        health_df.set_index("Step"),
+                        color=["#388bfd", "#3fb950"],
+                        use_container_width=True,
+                        height=300,
+                    )
+
+                with col_fault_chart:
+                    if st.session_state.fault_history:
+                        fault_counts = pd.Series(st.session_state.fault_history[-100:]).value_counts()
+                        st.markdown('<div class="chart-label">Fault Distribution — last 100 steps</div>', unsafe_allow_html=True)
+                        st.bar_chart(fault_counts, color="#388bfd", height=280)
+            else:
+                st.info("Run the simulation to see health trend data.")
+
+        # ──────────────────────────────────────────────────────────────────────────
+        with tab_sensors:
+            if st.session_state.sensor_history["vibration_mms"]:
+                col_vib, col_temp = st.columns(2)
+
+                with col_vib:
+                    n_vib = len(st.session_state.sensor_history["vibration_mms"])
+                    vib_df = pd.DataFrame({
+                        "Step": st.session_state.ts_history[-n_vib:],
+                        "Vibration (mm/s)": st.session_state.sensor_history["vibration_mms"][-n_vib:],
+                    })
+                    st.markdown('<div class="chart-label">Vibration — warn &gt;3 mm/s &nbsp; crit &gt;6 mm/s</div>', unsafe_allow_html=True)
+                    st.line_chart(vib_df.set_index("Step"), color=["#d29922"], height=250, use_container_width=True)
+
+                with col_temp:
+                    n_temp = len(st.session_state.sensor_history["temp_c"])
+                    temp_df = pd.DataFrame({
+                        "Step": st.session_state.ts_history[-n_temp:],
+                        "Temperature (C)": st.session_state.sensor_history["temp_c"][-n_temp:],
+                    })
+                    st.markdown('<div class="chart-label">Bearing Temperature — warn &gt;80 C &nbsp; crit &gt;95 C</div>', unsafe_allow_html=True)
+                    st.line_chart(temp_df.set_index("Step"), color=["#f85149"], height=250, use_container_width=True)
+
+                # All-sensors normalised — collapsed by default
+                if len(st.session_state.sensor_history["rpm"]) > 10:
+                    with st.expander("All sensors normalised (0–1 overlay)", expanded=False):
+                        combined = {}
+                        min_len = min(len(st.session_state.sensor_history[s]) for s in SIGNALS)
+                        for s in SIGNALS:
+                            vals = np.array(st.session_state.sensor_history[s][-min_len:])
+                            v_min, v_max = vals.min(), vals.max()
+                            span = v_max - v_min if v_max > v_min else 1.0
+                            combined[s] = ((vals - v_min) / span).tolist()
+                        combined["Step"] = st.session_state.ts_history[-min_len:]
+                        combined_df = pd.DataFrame(combined).set_index("Step")
+                        st.line_chart(combined_df, height=230, use_container_width=True)
+            else:
+                st.info("Run the simulation to see sensor data.")
+
+        # ──────────────────────────────────────────────────────────────────────────
+        with tab_process:
+            if st.session_state.sensor_history["rpm"]:
+                col_rpm, col_cur, col_flow, col_press = st.columns(4)
+                process_signals = [
+                    ("rpm",          "Speed (rpm)",   "#388bfd", col_rpm),
+                    ("current_a",    "Current (A)",   "#8b5cf6", col_cur),
+                    ("flow_m3h",     "Flow (m3/h)",   "#06b6d4", col_flow),
+                    ("pressure_bar", "Pressure (bar)","#3fb950", col_press),
+                ]
+                for sig, label, color, col in process_signals:
+                    with col:
+                        n_sig = len(st.session_state.sensor_history[sig])
+                        sig_df = pd.DataFrame({
+                            "Step": st.session_state.ts_history[-n_sig:],
+                            label: st.session_state.sensor_history[sig][-n_sig:],
+                        })
+                        st.markdown(f'<div class="chart-label">{label}</div>', unsafe_allow_html=True)
+                        st.line_chart(sig_df.set_index("Step"), color=[color], height=220, use_container_width=True)
+            else:
+                st.info("Run the simulation to see process variable data.")
 
 
-# ── Auto-refresh ──────────────────────────────────────────────────────────────
-if st.session_state.running:
-    delay = max(0.05, 1.0 / st.session_state.speed / 10)
-    time.sleep(delay)
-    st.rerun()
+
+
+dashboard_fragment()
